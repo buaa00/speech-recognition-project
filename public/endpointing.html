@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Endpointing</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.1.1/chartjs-plugin-zoom.min.js"
+        integrity="sha512-NxlWEbNbTV6acWnTsWRLIiwzOw0IwHQOYUCKBiu/NqZ+5jSy7gjMbpYI+/4KvaNuZ1qolbw+Vnd76pbIUYEG8g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"
+        integrity="sha512-u9akINsQsAkG9xjc1cnGF4zw5TFDwkxuc9vUp5dltDWYCSmyd0meygbvgXrlc/z7/o4a19Fb5V0OUE58J7dcyw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-3">
+                <h4>Choose file</h4>
+                <div class="form-group">
+                    <select class="form-control" id="selFileNames">
+                        <option></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button id="btnRefreshFiles" class="btn btn-sm btn-secondary mt-1">Refresh files</button>
+                </div>
+
+                <h4>Noise</h4>
+                <div class="form-group mt-1">
+                    <label for="">Noise length:</label>
+                    <input type="text" class="form-control" id="txtNoiseLength" aria-describedby="helpId"
+                        placeholder="">
+                </div>
+                <div class="form-group">
+                    <button id="btnCalculateNoise" class="btn btn-md btn-primary mt-1">Calculate noise</button>
+                </div>
+
+                <h4>Endpointing</h4>
+                <div class="form-group mt-1">
+                    <label for="">Window size:</label>
+                    <input type="text" class="form-control" id="txtWindowSize" aria-describedby="helpId" placeholder="">
+                </div>
+                <div class="form-group mt-1">
+                    <label for="">Noise level:</label>
+                    <input type="text" class="form-control" id="txtNoiseLevel" aria-describedby="helpId" placeholder="">
+                </div>
+                <div class="form-group mt-1">
+                    <label for="">P:</label>
+                    <input type="text" class="form-control" id="txtP" aria-describedby="helpId" placeholder="">
+                </div>
+                <div class="form-group mt-1">
+                    <label for="">Q:</label>
+                    <input type="text" class="form-control" id="txtQ" aria-describedby="helpId" placeholder="">
+                </div>
+                <div class="form-group">
+                    <button id="btnCalculate" class="btn btn-md btn-primary mt-1">Calculate</button>
+                </div>
+            </div>
+            <div class="col-9">
+                <div style="width: 800px !important; height: 400px !important;">
+                    <canvas id="myChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const verticalLinePlugin = {
+            id: 'verticalLinePlugin',
+            getLinePosition: function (chart, pointIndex) {
+                const meta = chart.getDatasetMeta(0); // first dataset is used to discover X coordinate of a point
+                const data = meta.data;
+                return data[pointIndex].x;
+            },
+            renderVerticalLine: function (chartInstance, pointIndex) {
+                const lineLeftOffset = this.getLinePosition(chartInstance, pointIndex);
+                const scale = chartInstance.scales['y'];
+                const context = chartInstance.ctx;
+
+                // render vertical line
+                context.beginPath();
+                context.strokeStyle = '#ff0000';
+                context.moveTo(lineLeftOffset, scale.top);
+                context.lineTo(lineLeftOffset, scale.bottom);
+                context.stroke();
+            },
+
+            afterDatasetsDraw: function (chart, easing) {
+                if (chart.config._config.lineAtIndex) {
+                    chart.config._config.lineAtIndex.forEach(pointIndex => this.renderVerticalLine(chart, pointIndex));
+                }
+            }
+        };
+
+        Chart.register(verticalLinePlugin);
+    </script>
+
+    <script src="/endpointing.js"></script>
+</body>
+
+</html>
