@@ -18,6 +18,11 @@ Run following command inside repository directory:
 Run following command inside repository directory:
 >npm run start
 
+## Application data
+---
+
+Wav files need to be stored in `{REPOSITORY_ROOT}/data` directory.
+
 ## Application urls:
 ---
 
