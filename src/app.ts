@@ -27,7 +27,7 @@ app.use(express.urlencoded());
 
 //ROUTES
 
-const dataPath = __dirname + '/../data';
+const dataPath = path.join(__dirname, '..', 'data');
 
 app.get('/data', async (req: Request, res: Response) => {
     const data = (await readdirAsync(dataPath)).filter(x => x.toLowerCase().endsWith('.wav'));
